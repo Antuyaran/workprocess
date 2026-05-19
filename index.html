@@ -73,6 +73,16 @@
 
       color: #b7b7b7;
       white-space: nowrap;
+      text-decoration: none;
+    }
+
+    /* 可跳转的导航词组：hover 时整个词组变成黄色 */
+    .nav-link {
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: #fff800;
     }
 
     .project-name {
@@ -86,7 +96,7 @@
     }
 
     .working-process {
-      grid-column: 8 / span 2;
+      grid-column: 10 / span 2;
       grid-row: 1;
       color: #5e5e5e;
     }
@@ -170,8 +180,8 @@
          第一行固定导航
          ============================== -->
 
-    <div class="nav-item project-name">Project Name</div>
-    <div class="nav-item intro">Intro</div>
+    <a class="nav-item nav-link project-name" href="https://antuyaran.github.io/homepage/">Project Name</a>
+    <a class="nav-item nav-link intro" href="#" id="introLink">Intro</a>
     <div class="nav-item working-process">Working Process</div>
 
     <!-- ==============================
@@ -204,6 +214,26 @@
   </main>
 
   <script>
+    /* ==============================
+       Navigation Links
+       点击 Intro 时，在 Intro1 和 Intro2 之间随机跳转
+       当前页面 Working Process 不设置 hover 变色和点击跳转
+       ============================== */
+
+    const introLink = document.getElementById("introLink");
+
+    introLink.addEventListener("click", function(event) {
+      event.preventDefault();
+
+      const introPages = [
+        "https://antuyaran.github.io/Intro1/",
+        "https://antuyaran.github.io/Intro2/"
+      ];
+
+      const randomIntroPage = introPages[Math.floor(Math.random() * introPages.length)];
+      window.location.href = randomIntroPage;
+    });
+
     /* ==============================
        Image Sequence Settings
        ============================== */
