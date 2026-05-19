@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Working Process</title>
+
+  <style>
+    /* ==============================
+       Basic Reset
+       ============================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      overflow: hidden;
+      font-family: "PingFang SC", "PingFangSC", "PingFang SC Regular", sans-serif;
+    }
+
+    /* ==============================
+       Main Layout
+       版心距离视口边缘各 20px
+       版心内部平均分为 6 行 12 列
+       注意：grid 本身不可见，只作为排版辅助
+       ============================== */
+
+    .page-grid {
+      position: fixed;
+      inset: 20px;
+
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+
+      width: calc(100vw - 40px);
+      height: calc(100vh - 40px);
+    }
+
+    /* 如果你调试时想看到网格，可以临时取消下面这段注释 */
+    /*
+    .page-grid {
+      background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 1px, transparent 1px);
+      background-size:
+        calc(100% / 12) 100%,
+        100% calc(100% / 6);
+    }
+    */
+
+    /* ==============================
+       Navigation Text
+       第一行固定文字部分
+       所有页面内容都不改变这一行
+       ============================== */
+
+    .nav-item {
+      align-self: start;
+      justify-self: start;
+
+      font-family: "PingFang SC", "PingFangSC", sans-serif;
+      font-weight: 600;
+      font-size: 15pt;
+      line-height: 1;
+
+      color: #b7b7b7;
+      white-space: nowrap;
+    }
+
+    .project-name {
+      grid-column: 1 / span 2;
+      grid-row: 1;
+    }
+
+    .intro {
+      grid-column: 7 / span 1;
+      grid-row: 1;
+    }
+
+    .working-process {
+      grid-column: 8 / span 2;
+      grid-row: 1;
+      color: #5e5e5e;
+    }
+
+    /* ==============================
+       Image Areas
+       第三行第一列：left 图片
+       第三行第七列：right 图片
+       图片宽度占三列，等比缩放
+       ============================== */
+
+    .image-block {
+      align-self: start;
+      justify-self: stretch;
+
+      width: 100%;
+      height: auto;
+      overflow: hidden;
+    }
+
+    .image-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .left-image {
+      grid-column: 1 / span 3;
+      grid-row: 3;
+    }
+
+    .right-image {
+      grid-column: 7 / span 3;
+      grid-row: 3;
+    }
+
+    /* ==============================
+       Text Box
+       第五行第一列
+       宽度占三列
+       ============================== */
+
+    .caption-box {
+      grid-column: 1 / span 3;
+      grid-row: 5;
+
+      align-self: start;
+      justify-self: stretch;
+
+      font-family: "PingFang SC", "PingFangSC", sans-serif;
+      font-weight: 400;
+      font-size: 9px;
+      line-height: 1.25;
+      color: #000000;
+
+      white-space: pre-line;
+    }
+
+    /* ==============================
+       Responsive Adjustment
+       小屏幕时避免文字过度重叠
+       ============================== */
+
+    @media (max-width: 768px) {
+      .nav-item {
+        font-size: 11pt;
+      }
+
+      .caption-box {
+        font-size: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-grid">
+
+    <!-- ==============================
+         第一行固定导航
+         ============================== -->
+
+    <div class="nav-item project-name">Project Name</div>
+    <div class="nav-item intro">Intro</div>
+    <div class="nav-item working-process">Working Process</div>
+
+    <!-- ==============================
+         第三行第一列：左侧图片
+         图片来自 left 文件夹
+         例如：left/1.jpg, left/2.jpg ...
+         ============================== -->
+
+    <div class="image-block left-image">
+      <img id="leftImage" src="left/1.jpg" alt="Left process image" />
+    </div>
+
+    <!-- ==============================
+         第三行第七列：右侧图片
+         图片来自 right 文件夹
+         例如：right/01.jpg, right/02.jpg ...
+         ============================== -->
+
+    <div class="image-block right-image">
+      <img id="rightImage" src="right/01.jpg" alt="Right process image" />
+    </div>
+
+    <!-- ==============================
+         第五行第一列：文字说明
+         文本会根据当前图片编号自动切换
+         ============================== -->
+
+    <div id="captionBox" class="caption-box"></div>
+
+  </main>
+
+  <script>
+    /* ==============================
+       Image Sequence Settings
+       ============================== */
+
+    // 这里填写你一共有多少组图片
+    // 例如 left 里有 1.jpg 到 16.jpg
+    // right 里有 01.jpg 到 16.jpg
+    const totalImages = 16;
+
+    // 每 1000ms 切换一次，也就是 1 秒
+    const intervalTime = 1000;
+
+    // 当前图片编号
+    let currentIndex = 1;
+
+    // 获取页面中的图片和文本元素
+    const leftImage = document.getElementById("leftImage");
+    const rightImage = document.getElementById("rightImage");
+    const captionBox = document.getElementById("captionBox");
+
+    /* ==============================
+       Text Content Groups
+       根据图片编号区间切换文字
+       你之后可以继续增加 17-24、25-32 等分组
+       ============================== */
+
+    const captionGroups = [
+      {
+        start: 1,
+        end: 5,
+        text:
+`Politico Political News
+Political news, newsletter, and policy reading page
+Advertisements/Sponsorship Available`
+      },
+      {
+        start: 6,
+        end: 16,
+        text:
+`BBC News
+British public media news platform
+The UK version typically has no commercial advertising`
+      }
+    ];
+
+    /* ==============================
+       Function: Format Number
+       左图使用 1.jpg, 2.jpg, 3.jpg
+       右图使用 01.jpg, 02.jpg, 03.jpg
+       ============================== */
+
+    function formatRightNumber(number) {
+      return String(number).padStart(2, "0");
+    }
+
+    /* ==============================
+       Function: Update Caption
+       根据 currentIndex 判断应该显示哪一组文字
+       ============================== */
+
+    function updateCaption(index) {
+      const matchedGroup = captionGroups.find(group => {
+        return index >= group.start && index <= group.end;
+      });
+
+      if (matchedGroup) {
+        captionBox.textContent = matchedGroup.text;
+      } else {
+        captionBox.textContent = "";
+      }
+    }
+
+    /* ==============================
+       Function: Update Images
+       同步更新 left 和 right 文件夹中的图片
+       ============================== */
+
+    function updateImages() {
+      leftImage.src = `left/${currentIndex}.jpg`;
+      rightImage.src = `right/${formatRightNumber(currentIndex)}.jpg`;
+
+      updateCaption(currentIndex);
+
+      currentIndex++;
+
+      // 播放到最后一张后重新回到第一张
+      if (currentIndex > totalImages) {
+        currentIndex = 1;
+      }
+    }
+
+    /* ==============================
+       Initial State
+       页面打开时先显示第一组图片和对应文字
+       ============================== */
+
+    updateImages();
+
+    /* ==============================
+       Auto Play
+       每 1 秒切换一次图片
+       ============================== */
+
+    setInterval(updateImages, intervalTime);
+  </script>
+</body>
+</html>
